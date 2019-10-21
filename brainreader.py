@@ -1,66 +1,57 @@
-import sys
-sys.path.append('..')
+import numpy as np
 
-import unittest
-from openbci import cyton as bci
-from openbci.plugins import StreamerTCPServer
-import time, timeit
-from threading import Thread
+# Mock sample for mock board
+class Mocksample:
+	def __init__(self, channels_data):
+		self.channels_data = channels_data
 
-NB_CHANNELS = 16
-
-# If > 0, interpolate on sample count, 1.024 to 250Hz->256Hz
-SAMPLING_FACTOR = -1.024
-# If > 0 will interpolate based on time
-SAMPLING_RATE = 256
-
-SERVER_PORT = 12345
-SERVER_IP = "localhost"
-
-DEBUG = False
-
-last_id = -1
-nb_samples_in = -1
-nb_samples_out = -1
-last_values = [0] * NB_CHANNELS
-leftover_duplications = 0
-tick = timeit.default_timer()
-
-class Monitor(Thread):
+# Mock board for experimenting data stuff without actual board
+class Mockboard:
 	def __init__(self):
-		self.nb_samples_in = -1
-		self.nb_samples_out = -1
-		self.tick = timeit.default_timer()
-		self.start_tick = self.tick
-	def run(self):
-		while True:
-			# Check FPS
-			new_tick = timeit.default_timer()
-			elapsed_time = new_tick - self.tick
-			current_samples_in = nb_samples_in
-			current_samples_out = nb_samples_in
+		self.streaming = False
 
-			print("--- at t: ", (new_tick - self.start_tick), " ---")
-			print("Elapsed time: ", elapsed_time)
-			print("nb_samples_in: ", current_samples_in - self.nb_samples_in)
-			print("nb_sampels_out: ", current_samples_out - self.nb_samples_out)
-			self.tick = new_tick
-			self.nb_samples_in = nb_samples_in
-			self.nb_samples_out = nb_samples_out
-			
-			# Watch for connection
-			server.check_connections()
-			time.sleep(1)
+	def start_stream(self, callback):
+		self.streaming = True
+		while(self.streaming):
+			sample = Mocksample(np.random.randn(16))
+			callback(sample)
 
-def streamData(sample):
-		global last_values
+# Handles stream from the board
+class StreamHandler:
+	def __init__(self, stream_name, stream_frames, callback):
+		self.board = Mockboard()
+		self.frame_counter = 0
+		self.stream_frames = stream_frames
+		self.stream_name = stream_name
+		self.callback = callback
 
-		global tick
-		
-		if sample.id != last_id + 1:
-			print("time", tick, ": packet skipped!")
-		if sample.id == 255:
-			last_id = -1
-		else:
-			last_id = sample.id
+	def run_callback(self, sample):
+		if self.frame_counter >= self.stream_frames:
+			self.board.streaming = False # Cancels streaming
+		self.callback(sample)
+		self.frame_counter += 1	
+	
+	def start_stream(self):
+		self.frame_counter = 0
+		self.board.start_stream(self.run_callback)
 
+data = []
+def collect_data(sample):
+	global data
+	x = sample.channels_data
+	data.append(np.asarray(x))
+
+while True:
+	user_input = str(raw_input("What to do? [q/r]"))
+	if(user_input == "q"): break
+	if(user_input == "r"):
+		name_input = str(raw_input("Recording name?"))
+		frame_input = int(raw_input("Recording frames?"))
+		mystream = StreamHandler(name_input, frame_input, collect_data)
+		mystream.start_stream()
+		print("Saving file...")
+		np.save(name_input, np.asarray(data))
+		data = []
+		print("Finished recording and saved file")
+	else:
+		print("Invalid input, please try again.")
