@@ -41,8 +41,8 @@ class Net(nn.Module):
 			if i != self.n_layers - 1: x = F.relu(x)
 		
 		# Note: since the task is classification, 
-		#		we probably want to use sigmoid and CE loss
-		x = F.sigmoid(x)
+		#		we probably want to use softmax and BCE loss
+		x = F.softmax(x)
 		return x
 			
 		

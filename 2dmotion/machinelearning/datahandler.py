@@ -28,14 +28,16 @@ class DataHandler:
 		self.data = torch.zeros(self.dataset_size, vector_size)
 
 		# Tensor for labels
-		self.labels = torch.zeros(self.dataset_size)
+		self.labels = torch.zeros(self.dataset_size, num_classes)
 
 		# Load data onto tensor for data and labels	
 		cnt = 0
 		for i in range(num_classes):
 			for sample in npdata[i]:
 				self.data[cnt] = torch.from_numpy(sample)
-				self.labels[cnt] = i
+				label = torch.zeros(num_classes)
+				label[i] = 1
+				self.labels[cnt] = label
 				cnt += 1
 
 	def get_batch(self, batch_size):
