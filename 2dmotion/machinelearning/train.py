@@ -1,12 +1,13 @@
-import torch.nn
+import torch
+from torch import nn
 from model import Net
 from datahandler import DataHandler
 
 CUDA = False
-ITERATIONS = 3000
-BATCH_SIZE = 16
+ITERATIONS = 10000
+BATCH_SIZE = 32
 
-LOAD_CHECKPOINTS = False
+LOAD_CHECKPOINTS = True
 
 LOGGING = True 
 LOG_INTERVAL = 100
@@ -14,33 +15,35 @@ LOG_INTERVAL = 100
 TESTING = True
 TEST_INTERVAL = 1000
 
-SAVE_CHECKPOINTS = False
+SAVE_CHECKPOINTS = True
 SAVE_INTERVAL = 1000
 
 # Load and prep data
 dh = DataHandler("../datacollection/mytest.npy")
-test = dh.partition_testset(0.25)
+test = dh.partition_testset(0.25) # List: [Input, Output]
 print("Training set size:")
 print(dh.data.shape)
 print("Test set size:")
 print(test[0].shape)
 
 # Instantiate model
-model = Net(16,4,2,128)
+model = Net(16,4,3,128)
 if(CUDA) : model.cuda()
-opt = torch.nn.optim.Adam(model.parameters(), lr=2e-4)
+opt = torch.optim.Adam(model.parameters(), lr=2e-3)
 loss_func = nn.BCELoss()
 
 # Function to test model on test set
-# Returns a percent score
+# Returns a list [score, max score]
 def test_model():
-	test_size = list(test.shape)[0]
+	test_size = list(test[0].shape)[0]
 	y = model(test[0])
 	score = 0
 	test_loss = loss_func(y, test[1])
 	for i in range(test_size):
-		_,
-		if(y[i] == test
+		_,pred_index = y[i].max(0)
+		_,true_index = test[1][i].max(0)
+		if pred_index == true_index: score += 1
+	return [score, test_size]
 
 
 # Try to load weights if there are any
@@ -50,6 +53,7 @@ if LOAD_CHECKPOINTS:
 	except:
 		print("No prior weights found")
 
+# Training loop
 model.train()
 print("Training...")
 for i in range(ITERATIONS):
@@ -69,8 +73,12 @@ for i in range(ITERATIONS):
 	if LOGGING and i % LOG_INTERVAL == 0:
 		print("["+str(i)+"/"+str(ITERATIONS)+"]: "+"Loss: "+str(loss.item()))
 	if TESTING and i % TEST_INTERVAL == 0:
-		print("
-	
+		score,max_score = test_model()
+		print("Scored: ["+str(score)+" / "+str(max_score)+"] on test set") 
+	if SAVE_CHECKPOINTS and i % SAVE_INTERVAL == 0:
+		print("Saving checkpoints...")
+		try: torch.save(model.state_dict(), "checkpoints/params.pt")
+		except: print("Couldn't save pt file")
 	
 	
 

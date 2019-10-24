@@ -70,5 +70,7 @@ class DataHandler:
 			modified_ind = ind - i
 			self.data = torch.cat((self.data[0:modified_ind], self.data[modified_ind+1:]))
 			self.labels = torch.cat((self.labels[0:modified_ind], self.labels[modified_ind+1:]))
-
+		
+		# Shrink size	
+		self.dataset_size -= testset_size
 		return testset
