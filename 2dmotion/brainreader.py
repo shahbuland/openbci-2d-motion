@@ -1,4 +1,5 @@
 import numpy as np
+from streamhandler import StreamHandler
 
 NUM_CONTROLS = 4
 
@@ -6,40 +7,6 @@ NUM_CONTROLS = 4
 data = [[] for i in range(NUM_CONTROLS)]
 row_to_modify = 0 # set later
 
-# Mock sample for mock board
-class Mocksample:
-	def __init__(self, channels_data):
-		self.channels_data = channels_data
-
-# Mock board for experimenting data stuff without actual board
-class Mockboard:
-	def __init__(self):
-		self.streaming = False
-
-	def start_stream(self, callback):
-		self.streaming = True
-		while(self.streaming):
-			sample = Mocksample(np.random.randn(16))
-			callback(sample)
-
-# Handles stream from the board
-class StreamHandler:
-	def __init__(self, stream_frames, callback):
-		self.board = Mockboard()
-		self.frame_counter = 0
-		self.stream_frames = stream_frames
-		self.callback = callback
-
-	def run_callback(self, sample):
-		if self.frame_counter >= self.stream_frames:
-			self.board.streaming = False # Cancels streaming
-			return
-		self.callback(sample)
-		self.frame_counter += 1	
-	
-	def start_stream(self):
-		self.frame_counter = 0
-		self.board.start_stream(self.run_callback)
 
 # Function that collects raw data and appends to data
 def collect_data(sample):

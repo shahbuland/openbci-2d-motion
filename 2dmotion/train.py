@@ -7,7 +7,7 @@ CUDA = False
 ITERATIONS = 10000
 BATCH_SIZE = 32
 
-LOAD_CHECKPOINTS = True
+LOAD_CHECKPOINTS = False
 
 LOGGING = True 
 LOG_INTERVAL = 100
@@ -15,7 +15,7 @@ LOG_INTERVAL = 100
 TESTING = True
 TEST_INTERVAL = 1000
 
-SAVE_CHECKPOINTS = True
+SAVE_CHECKPOINTS = False
 SAVE_INTERVAL = 1000
 
 # Load and prep data
@@ -50,6 +50,7 @@ def test_model():
 if LOAD_CHECKPOINTS:
 	try:
 		model.load_state_dict(torch.load("checkpoints/params.pt"))
+		print("Successfully loaded checkpoint")
 	except:
 		print("No prior weights found")
 
