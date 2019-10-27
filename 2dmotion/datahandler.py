@@ -1,7 +1,6 @@
 import numpy as np
 import torch
 
-# Function to remove an index from a tensor
 
 # Purpose of this program is to get .npy and handle it for training
 # It should be able to:

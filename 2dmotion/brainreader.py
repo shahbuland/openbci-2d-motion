@@ -1,5 +1,6 @@
 import numpy as np
 from streamhandler import StreamHandler
+from pyOpenBCI import OpenBCICyton
 
 NUM_CONTROLS = 4
 
@@ -19,7 +20,7 @@ def edit_data(row):
 	global data
 	print("Now editing! Type 'h' for help")
 	while True:
-		user_input = raw_input("Enter edit command:")
+		user_input = input("Enter edit command:")
 		
 		# Help
 		if(str(user_input) == "h"):
@@ -42,14 +43,14 @@ def edit_data(row):
 		# Remove
 		elif(str(user_input) == "r"):	
 			print("Please specify a range:")
-			lower_bound = int(raw_input("Lower bound?"))
-			upper_bound = int(raw_input("Upper bound?"))
+			lower_bound = int(input("Lower bound?"))
+			upper_bound = int(input("Upper bound?"))
 				
 		# Print
 		elif(str(user_input) == "p"):
 			print("Please specify a range:")
-			lower_bound = int(raw_input("Lower bound?"))
-			upper_bound = int(raw_input("Upper bound?"))
+			lower_bound = int(input("Lower bound?"))
+			upper_bound = int(input("Upper bound?"))
 			for i in range(lower_bound, upper_bound):
 				print(data[row][i])
 		
@@ -65,15 +66,19 @@ LOADED_PATH = ""
 
 # Main loop
 while True:
-	user_input = str(raw_input("What to do?"))
+	user_input = str(input("What to do?"))
 	
 	# quit
 	if(user_input == "q"): break
 	
+	# ping bci
+	if(user_input == "p"):
+		test = OpenBCICyton(daisy="True")
+
 	# record
-	if(user_input == "r"):
-		row_to_modify = int(raw_input("Row to record to? [0 - Left] [1 - Up] [2 - Right] [3 - Down]"))
-		frame_input = int(raw_input("Recording how many frames?"))
+	elif(user_input == "r"):
+		row_to_modify = int(input("Row to record to? [0 - Left] [1 - Up] [2 - Right] [3 - Down]"))
+		frame_input = int(input("Recording how many frames?"))
 		mystream = StreamHandler(frame_input, collect_data)
 		mystream.start_stream()
 		print("Finished recording to", row_to_modify)
@@ -83,12 +88,12 @@ while True:
 		if(LOADED and user_input == "s"):
 			np.save(LOADED_PATH, np.asarray(data))
 		else:
-			file_name = str(raw_input("File path?"))
+			file_name = str(input("File path?"))
 			np.save(file_name, np.asarray(data))
 	
 	# load
 	elif(user_input == "l"):
-		file_name = str(raw_input("File path?"))
+		file_name = str(input("File path?"))
 		arrdata = np.load(file_name, allow_pickle=True)
 		for i in range(NUM_CONTROLS):
 			data[i] = list(arrdata[i])
@@ -96,7 +101,7 @@ while True:
 		LOADED = True
 	# edit
 	elif(user_input == "e"):
-		row_input = int(raw_input("Row to edit? [0 - Left] [1 - Up] [2 - Right] [3 - Down]"))
+		row_input = int(input("Row to edit? [0 - Left] [1 - Up] [2 - Right] [3 - Down]"))
 		edit_data(row_input)	
 
 	# general info on data so far
@@ -108,6 +113,7 @@ while True:
 	# help
 	elif(user_input == "h"):
 		print("q - quit")
+		print("p - ping")
 		print("r - record data")
 		print("s - save data")
 		print("sa - save as")
