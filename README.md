@@ -2,12 +2,12 @@
 
 Using a fully connected neural network, a data collector and an OpenBCI electrode cap, this program learns to read brain waves and classify them as being a 2d motion (Left, Up, Right, Down), then allows the user to control a circle in 2d with their thoughts.  
 
-#Usage:  
+# Usage:  
 brainreader.py can be used to record and save data  
 train.py will train model on saved data  
 movement.py will use model to convert brain waves directly to motion  
  
-#Dependancies:
+# Dependancies:
 
 Pytorch
 pyOpenBCI
