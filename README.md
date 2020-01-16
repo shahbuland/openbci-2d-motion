@@ -1,8 +1,7 @@
 # openbci-2dmotion
 
-Using a fully connected neural network, a data collector and an OpenBCI electrode cap, this project learns to read brain waves and classify them as being a 2d motion (Left, Up, Right, Down), then allows the user to control a circle in 2d with their thoughts.
+Using a fully connected neural network, a data collector and an OpenBCI electrode cap, this program learns to read brain waves and classify them as being a 2d motion (Left, Up, Right, Down), then allows the user to control a circle in 2d with their thoughts.
 
-Most stuff outside of the 2d motion folder is just junk atm
 #Dependancies:
 
 Pytorch
