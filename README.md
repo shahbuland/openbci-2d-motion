@@ -13,4 +13,4 @@ Pytorch
 pyOpenBCI
 OpenBCI electrode cap + Cyton Board + Daisy (16 channels)
 
-This only works on linux and programs using the cyton must be run with sudo to be able to access ports. 
+This has only been tested on Ubuntu and programs using the cyton must be run with sudo to be able to access ports. 
